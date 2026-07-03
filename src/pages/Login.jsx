@@ -14,7 +14,7 @@ const Login = () => {
     e.preventDefault();
     if (email && password) {
       login(email, password);
-      navigate('/input');
+      navigate('/workspace');
     }
   };
 

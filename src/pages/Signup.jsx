@@ -15,7 +15,7 @@ const Signup = () => {
     e.preventDefault();
     if (name && email && password) {
       signup(name, email, password);
-      navigate('/input');
+      navigate('/workspace');
     }
   };
 

@@ -4,8 +4,7 @@ import { AuthProvider, useAuth } from './AuthContext';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import IdeaInput from './pages/IdeaInput';
-import Dashboard from './pages/Dashboard';
+import Workspace from './pages/Workspace';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -23,21 +22,15 @@ const AppRoutes = () => {
       <Route path="/signup" element={<Signup />} />
       
       <Route 
-        path="/input" 
+        path="/workspace" 
         element={
           <ProtectedRoute>
-            <IdeaInput />
+            <Workspace />
           </ProtectedRoute>
         } 
       />
-      <Route 
-        path="/dashboard" 
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        } 
-      />
+      {/* Fallback redirect */}
+      <Route path="*" element={<Navigate to="/workspace" replace />} />
     </Routes>
   );
 };
