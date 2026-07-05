@@ -154,20 +154,38 @@ const Workspace = () => {
 
           <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.3)', borderTop: '1px solid var(--border-color)' }}>
             <form onSubmit={handleGenerate} style={{ display: 'flex', gap: '0.75rem' }}>
-              <input
-                type="text"
+              <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (prompt.trim() && !isGenerating) {
+                      handleGenerate(e);
+                    }
+                  }
+                }}
                 disabled={isGenerating}
                 placeholder="e.g. Build an automated greenhouse monitor..."
                 className="input-field"
-                style={{ flex: 1, background: 'rgba(15, 23, 42, 0.8)' }}
+                style={{ 
+                  flex: 1, 
+                  background: 'rgba(15, 23, 42, 0.8)', 
+                  resize: 'none', 
+                  minHeight: '60px', 
+                  padding: '1rem 1.25rem',
+                  fontSize: '1rem',
+                  borderRadius: '12px',
+                  fontFamily: 'var(--font-sans)',
+                  lineHeight: '1.5'
+                }}
+                rows={2}
               />
               <button 
                 type="submit" 
                 disabled={!prompt.trim() || isGenerating}
                 className="btn btn-primary"
-                style={{ padding: '0 1.25rem', background: prompt.trim() ? 'var(--primary)' : 'rgba(255,255,255,0.1)', color: prompt.trim() ? 'white' : 'gray' }}
+                style={{ padding: '0 1.5rem', background: prompt.trim() ? 'var(--primary)' : 'rgba(255,255,255,0.1)', color: prompt.trim() ? 'white' : 'gray', height: '60px', borderRadius: '12px' }}
               >
                 <Send size={18} />
               </button>
