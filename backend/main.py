@@ -1,188 +1,143 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import time
+from pydantic import BaseModel, Field
+from typing import List, Optional
+from dotenv import load_dotenv
+
+try:
+    from google import genai
+    from google.genai import types
+except ImportError:
+    genai = None
+
+# Load environment variables from .env
+load_dotenv()
 
 app = FastAPI()
 
 # Allow CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# --- Pydantic Models for Request (Conversational History) ---
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
 class PromptRequest(BaseModel):
-    prompt: str
+    history: List[ChatMessage]
+
+# --- Pydantic Models for Structured Output (Gemini) ---
+class Microcontroller(BaseModel):
+    name: str = Field(description="Name of the microcontroller (e.g., ESP32, Raspberry Pi 4)")
+    desc: str = Field(description="Short description of the microcontroller")
+    specs: List[str] = Field(description="List of key specifications")
+
+class Component(BaseModel):
+    name: str = Field(description="Name of the sensor or output component")
+    desc: str = Field(description="Short description of the component")
+    specs: List[str] = Field(description="List of key specifications (e.g., Voltage, Protocol)")
+
+class Hardware(BaseModel):
+    microcontroller: Microcontroller
+    sensors: List[Component]
+    outputs: List[Component]
+
+class InstructionStep(BaseModel):
+    title: str = Field(description="Title of the step")
+    desc: str = Field(description="Detailed instruction for the step")
+
+class Software(BaseModel):
+    language: str = Field(description="Programming language (e.g., cpp, python)")
+    code: str = Field(description="The complete, functional source code for the project")
+    ide_steps: List[InstructionStep] = Field(description="Step-by-step instructions for running the code in an IDE (e.g., Arduino IDE or Thonny)")
+    cloud_steps: List[InstructionStep] = Field(description="Step-by-step instructions for connecting to a cloud dashboard (e.g., Blynk, ThingSpeak)")
+
+class ProjectPlan(BaseModel):
+    message: str = Field(description="A friendly, conversational response summarizing what you generated and addressing the user's latest prompt.")
+    hardware: Hardware
+    software: Software
+
+SYSTEM_PROMPT = """You are an expert IoT Hardware Architect and Software Developer.
+The user is building an IoT project. They will provide a request or a follow-up modification.
+You must design the hardware system and write the software for it.
+- Choose an appropriate microcontroller (e.g., ESP32 for C++, Raspberry Pi for Python).
+- List the exact sensors and output components needed with real-world specs.
+- Write fully functional code (C++ or Python) for the system.
+- Provide step-by-step IDE instructions (Arduino IDE for C++, Thonny for Python).
+- Provide step-by-step Cloud integration instructions if applicable.
+Always respond strictly in the requested JSON structure.
+"""
 
 @app.post("/api/generate")
 async def generate_project(req: PromptRequest):
-    # Simulate AI processing delay
-    time.sleep(1.5)
+    api_key = os.environ.get("GEMINI_API_KEY")
     
-    text = req.prompt.lower()
-    
-    # Defaults
-    microcontroller = {
-        "name": "ESP32 NodeMCU (Wi-Fi/BT)",
-        "desc": "The core processing unit for your system.",
-        "specs": ["Operating Voltage: 3.3V Logic", "Processor Speed: 240 MHz", "Wireless: 802.11 b/g/n Wi-Fi & BT", "Usable GPIO: ~25 Pins"]
-    }
-    sensors = []
-    outputs = []
-    
-    language = "cpp"
-    code = ""
-    ide_steps = []
-    cloud_steps = []
-    
-    # 1. Parse Microcontroller & Language
-    if "raspberry" in text or "pi" in text or "python" in text:
-        microcontroller = {
-            "name": "Raspberry Pi 4 Model B",
-            "desc": "A powerful single-board computer running a full Linux OS.",
-            "specs": ["Operating Voltage: 5V/3A USB-C", "Processor: Quad core Cortex-A72 (ARM v8) 64-bit @ 1.5GHz", "RAM: 2GB, 4GB or 8GB LPDDR4", "Wireless: 2.4 GHz and 5.0 GHz IEEE 802.11ac wireless, Bluetooth 5.0"]
+    # Check if API key is set
+    if not api_key or not genai:
+        return {
+            "status": "success",
+            "message": "⚠️ GEMINI_API_KEY is not set in the backend/.env file! Using fallback mock data. Please add your API key to enable real AI generation.",
+            "hardware": {
+                "microcontroller": {
+                    "name": "ESP32 NodeMCU (Wi-Fi/BT)",
+                    "desc": "Fallback Mock Microcontroller",
+                    "specs": ["Operating Voltage: 3.3V Logic"]
+                },
+                "sensors": [],
+                "outputs": []
+            },
+            "software": {
+                "language": "cpp",
+                "code": "// Add GEMINI_API_KEY to backend/.env to generate real code!",
+                "ide_steps": [{"title": "Setup API Key", "desc": "Create a .env file in the backend folder and add GEMINI_API_KEY=your_key"}],
+                "cloud_steps": []
+            }
         }
-        language = "python"
+
+    try:
+        client = genai.Client(api_key=api_key)
         
-        code = """import RPi.GPIO as GPIO
-import time
-import requests
+        # Convert React chat history to Gemini chat history format
+        # React uses 'ai' for model, Gemini uses 'model'.
+        contents = []
+        for msg in req.history:
+            role = "user" if msg.role == "user" else "model"
+            contents.append(
+                types.Content(role=role, parts=[types.Part.from_text(text=msg.content)])
+            )
 
-# Setup
-LED_PIN = 18
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(LED_PIN, GPIO.OUT)
-
-print("Raspberry Pi Initialized")
-
-try:
-    while True:
-        # Example logic
-        GPIO.output(LED_PIN, GPIO.HIGH)
-        time.sleep(1)
-        GPIO.output(LED_PIN, GPIO.LOW)
-        time.sleep(1)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                response_mime_type="application/json",
+                response_schema=ProjectPlan,
+                temperature=0.7,
+            ),
+        )
         
-        # Send data to cloud
-        # requests.post("https://api.thingspeak.com/update", data={"api_key": "YOUR_KEY", "field1": 1})
-except KeyboardInterrupt:
-    GPIO.cleanup()
-"""
-        ide_steps = [
-            {"title": "Open Thonny IDE", "desc": "Launch Thonny, the default Python IDE included in Raspberry Pi OS."},
-            {"title": "Copy Code", "desc": "Copy the Python script above and paste it into a new file in Thonny."},
-            {"title": "Save File", "desc": "Save the file as `main.py` on your Desktop or in your project folder."},
-            {"title": "Run Script", "desc": "Click the Green 'Play' button in the toolbar to execute your code."}
-        ]
+        # Parse the JSON response
+        import json
+        plan_data = json.loads(response.text)
         
-    else:
-        # Default to ESP32 / Arduino (Embedded C++)
-        language = "cpp"
-        code = """#include <WiFi.h>
-
-const char* ssid = "YOUR_WIFI_SSID";
-const char* password = "YOUR_WIFI_PASSWORD";
-
-const int LED_PIN = 2; // Onboard LED
-
-void setup() {
-  Serial.begin(115200);
-  pinMode(LED_PIN, OUTPUT);
-  
-  // Connect to Wi-Fi
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("\\nWiFi connected");
-}
-
-void loop() {
-  // Example logic
-  digitalWrite(LED_PIN, HIGH);
-  delay(1000);
-  digitalWrite(LED_PIN, LOW);
-  delay(1000);
-  
-  // TODO: Send HTTP request to cloud dashboard
-}
-"""
-        ide_steps = [
-            {"title": "Install Arduino IDE", "desc": "Download and install the latest Arduino IDE from arduino.cc."},
-            {"title": "Add ESP32 Board Manager", "desc": "Go to File > Preferences, and add `https://dl.espressif.com/dl/package_esp32_index.json` to Additional Boards Manager URLs."},
-            {"title": "Select Board & Port", "desc": "Go to Tools > Board and select 'DOIT ESP32 DEVKIT V1'. Select your COM port under Tools > Port."},
-            {"title": "Upload", "desc": "Paste the code, connect your ESP32 via micro-USB, and click the Upload button (Right Arrow icon)."}
-        ]
-
-    # Cloud Steps (Common for both in this mock)
-    cloud_steps = [
-        {"title": "Create Dashboard", "desc": "Sign up for a free account at ThingSpeak or Blynk IoT."},
-        {"title": "Get API Keys", "desc": "Create a new Device or Channel and copy your Auth Token / API Key."},
-        {"title": "Update Code", "desc": "Paste your Wi-Fi credentials and the API Key into the designated variables in the code."},
-        {"title": "Visualize Data", "desc": "Add a Gauge or Graph widget to your cloud dashboard and link it to the data stream."}
-    ]
-
-    # 2. Parse Sensors & Outputs
-    if "ultrasonic" in text or "distance" in text or "gate" in text:
-        sensors.append({
-            "name": 'HC-SR04 Ultrasonic Sensor',
-            "desc": 'Non-contact distance measurement module for object detection.',
-            "specs": ['Voltage: 5V DC', 'Range: 2cm to 400cm', 'Pins: VCC, TRIG, ECHO, GND']
-        })
-    if "temp" in text or "greenhouse" in text or "plant" in text or "moisture" in text:
-        sensors.append({
-            "name": 'DHT22 - Temperature & Humidity',
-            "desc": 'High precision digital sensor.',
-            "specs": ['Voltage: 3.3V to 5.5V DC', 'Signal: Single-bus digital', 'Range: 0-100% RH, -40 to 80°C']
-        })
-    if "display" in text or "screen" in text or "oled" in text:
-        outputs.append({
-            "name": '0.96" OLED Display (SSD1306)',
-            "desc": 'High-contrast screen for on-device visualization.',
-            "specs": ['Resolution: 128x64 Pixels', 'Protocol: I2C (SDA/SCL)']
-        })
-    if "motor" in text or "servo" in text or "gate" in text:
-        outputs.append({
-            "name": 'SG90 Micro Servo Motor',
-            "desc": 'Small footprint motor for precise physical movement.',
-            "specs": ['Voltage: 4.8V - 6V', 'Control: PWM Signal']
-        })
-    if "relay" in text or "light" in text or "pump" in text:
-        outputs.append({
-            "name": '5V Single-Channel Relay Module',
-            "desc": 'Electromagnetic switch to control high-power devices.',
-            "specs": ['Control: Digital High/Low', 'Capacity: 10A @ 250V AC']
-        })
-
-    # Defaults if empty
-    if len(sensors) == 0 and len(outputs) == 0:
-        sensors.append({
-            "name": 'Generic Multi-Sensor',
-            "desc": 'Standard IoT sensing unit.',
-            "specs": ['Voltage: 3.3V', 'Protocol: I2C']
-        })
-        outputs.append({
-            "name": 'Status LED Indicator',
-            "desc": 'Basic visual feedback.',
-            "specs": ['Color: RGB', 'Control: PWM']
-        })
-
-    return {
-        "status": "success",
-        "message": f"Successfully parsed requirements for '{req.prompt}'.",
-        "hardware": {
-            "microcontroller": microcontroller,
-            "sensors": sensors,
-            "outputs": outputs
-        },
-        "software": {
-            "language": language,
-            "code": code,
-            "ide_steps": ide_steps,
-            "cloud_steps": cloud_steps
+        return {
+            "status": "success",
+            "message": plan_data.get("message", "Here is your updated project plan."),
+            "hardware": plan_data.get("hardware"),
+            "software": plan_data.get("software")
         }
-    }
+        
+    except Exception as e:
+        print(f"Error generating plan: {e}")
+        return {
+            "status": "error",
+            "message": f"An error occurred while generating the plan: {str(e)}"
+        }

@@ -40,7 +40,8 @@ const Workspace = () => {
     if (!prompt.trim()) return;
 
     const currentPrompt = prompt;
-    setChatHistory(prev => [...prev, { role: 'user', content: currentPrompt }]);
+    const updatedHistory = [...chatHistory, { role: 'user', content: currentPrompt }];
+    setChatHistory(updatedHistory);
     setPrompt('');
     setIsGenerating(true);
     setShowCode(false); // Reset output view
@@ -49,7 +50,7 @@ const Workspace = () => {
       const response = await fetch('http://localhost:8000/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: currentPrompt })
+        body: JSON.stringify({ history: updatedHistory })
       });
       
       const data = await response.json();
@@ -57,7 +58,7 @@ const Workspace = () => {
       if (data.status === 'success') {
         setHardware(data.hardware);
         setSoftware(data.software);
-        setChatHistory(prev => [...prev, { role: 'ai', content: data.message + " The Hardware plan has been updated on the right. When you are ready, click 'Generate Code & Instructions' to build the software!" }]);
+        setChatHistory(prev => [...prev, { role: 'ai', content: data.message }]);
       } else {
         setChatHistory(prev => [...prev, { role: 'ai', content: "An error occurred while generating the plan." }]);
       }
