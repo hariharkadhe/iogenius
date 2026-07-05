@@ -70,8 +70,8 @@ You must design the hardware system and write the software for it.
 - Choose an appropriate microcontroller (e.g., ESP32 for C++, Raspberry Pi for Python).
 - List the exact sensors and output components needed with real-world specs.
 - Write fully functional code (C++ or Python) for the system.
-- Provide step-by-step IDE instructions (Arduino IDE for C++, Thonny for Python).
-- Provide step-by-step Cloud integration instructions if applicable.
+- Provide step-by-step IDE instructions (Arduino IDE for C++, Thonny for Python). MUST include the direct download link to the IDE.
+- Provide step-by-step Cloud integration instructions if applicable. MUST include the direct link to the cloud platform (e.g., thingspeak.com).
 Always respond strictly in the requested JSON structure.
 """
 
