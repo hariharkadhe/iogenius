@@ -310,6 +310,24 @@ const Workspace = () => {
                            </pre>
                         </div>
 
+                        {/* Wiring Guide */}
+                        {software.wiring_steps && software.wiring_steps.length > 0 && (
+                          <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid #8b5cf6' }}>
+                             <h3 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Zap size={20} color="#8b5cf6" /> Wiring & Connections</h3>
+                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                               {software.wiring_steps.map((step, idx) => (
+                                 <div key={idx} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                                   <div style={{ background: '#8b5cf6', color: '#fff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.875rem', fontWeight: 'bold', flexShrink: 0 }}>{idx + 1}</div>
+                                   <div>
+                                     <strong style={{ display: 'block', marginBottom: '0.25rem', color: '#e2e8f0' }}>{step.title}</strong>
+                                     <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{step.desc}</span>
+                                   </div>
+                                 </div>
+                               ))}
+                             </div>
+                          </div>
+                        )}
+
                         {/* IDE Steps */}
                         <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--primary)' }}>
                            <h3 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Terminal size={20} color="var(--primary)" /> IDE Execution Guide</h3>
