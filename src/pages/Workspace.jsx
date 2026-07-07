@@ -4,7 +4,7 @@ import { useAuth } from '../AuthContext';
 import { 
   BrainCircuit, User, LogOut, Send, Cpu, 
   Settings, Activity, Zap, CheckCircle2, Monitor, Loader2,
-  Code, Terminal, Cloud, ChevronDown, ChevronUp
+  Code, Terminal, Cloud, ChevronDown, ChevronUp, Bug
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,6 +18,7 @@ const Workspace = () => {
   ]);
   
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isDebugMode, setIsDebugMode] = useState(false);
   
   // Data from Python Backend
   const [hardware, setHardware] = useState(null);
@@ -39,28 +40,60 @@ const Workspace = () => {
     e.preventDefault();
     if (!prompt.trim()) return;
 
+    if (isDebugMode && (!hardware || !software)) {
+      setChatHistory(prev => [...prev, { role: 'ai', content: "You need to generate a project first before you can debug it!" }]);
+      return;
+    }
+
     const currentPrompt = prompt;
     const updatedHistory = [...chatHistory, { role: 'user', content: currentPrompt }];
     setChatHistory(updatedHistory);
     setPrompt('');
     setIsGenerating(true);
-    setShowCode(false); // Reset output view
+    
+    if (!isDebugMode) {
+      setShowCode(false); // Reset output view on new generation
+    }
 
     try {
-      const response = await fetch('http://localhost:8000/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ history: updatedHistory })
-      });
-      
-      const data = await response.json();
-      
-      if (data.status === 'success') {
-        setHardware(data.hardware);
-        setSoftware(data.software);
-        setChatHistory(prev => [...prev, { role: 'ai', content: data.message }]);
+      if (isDebugMode) {
+        // --- DEBUG MODE ---
+        const response = await fetch('http://localhost:8000/api/debug', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            error_message: currentPrompt,
+            hardware: hardware,
+            software: software
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          let debugMsg = `**Diagnosis:** ${data.diagnosis}\n\n**Solutions:**\n` + data.solution_steps.map((s, i) => `${i+1}. ${s}`).join('\n');
+          setChatHistory(prev => [...prev, { role: 'ai', content: debugMsg, isDebug: true }]);
+        } else {
+          setChatHistory(prev => [...prev, { role: 'ai', content: "An error occurred while debugging." }]);
+        }
+
       } else {
-        setChatHistory(prev => [...prev, { role: 'ai', content: "An error occurred while generating the plan." }]);
+        // --- NORMAL GENERATE MODE ---
+        const response = await fetch('http://localhost:8000/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history: updatedHistory })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          setHardware(data.hardware);
+          setSoftware(data.software);
+          setChatHistory(prev => [...prev, { role: 'ai', content: data.message }]);
+        } else {
+          setChatHistory(prev => [...prev, { role: 'ai', content: "An error occurred while generating the plan." }]);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -93,11 +126,26 @@ const Workspace = () => {
         {/* LEFT PANEL: Chat / Project Input */}
         <div style={{ width: '35%', minWidth: '400px', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--border-color)', background: 'rgba(15, 23, 42, 0.6)' }}>
           
-          <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.2)' }}>
-            <h2 style={{ margin: 0, fontSize: '1.125rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Settings size={18} color="var(--primary)" /> Project Definition
-            </h2>
-            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: 'var(--text-muted)' }}>Discuss and refine your requirements</p>
+          <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: '1.125rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Settings size={18} color="var(--primary)" /> Project Definition
+              </h2>
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: 'var(--text-muted)' }}>Discuss and refine your requirements</p>
+            </div>
+            <button 
+              onClick={() => setIsDebugMode(!isDebugMode)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                padding: '0.5rem 0.75rem', borderRadius: '8px',
+                background: isDebugMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)',
+                color: isDebugMode ? '#ef4444' : 'var(--text-muted)',
+                border: `1px solid ${isDebugMode ? 'rgba(239, 68, 68, 0.5)' : 'transparent'}`,
+                cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.875rem', fontWeight: 600
+              }}
+            >
+              <Bug size={16} /> {isDebugMode ? 'Debug Mode ON' : 'Debug Mode'}
+            </button>
           </div>
 
           <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -125,8 +173,8 @@ const Workspace = () => {
                   {msg.role === 'ai' ? <><BrainCircuit size={14} color="var(--primary)" /> System</> : <><User size={14} /> You</>}
                 </div>
                 <div style={{ 
-                  background: msg.role === 'user' ? 'rgba(59, 130, 246, 0.1)' : 'var(--glass-bg)',
-                  border: `1px solid ${msg.role === 'user' ? 'rgba(59, 130, 246, 0.3)' : 'var(--border-color)'}`,
+                  background: msg.role === 'user' ? 'rgba(59, 130, 246, 0.1)' : (msg.isDebug ? 'rgba(239, 68, 68, 0.1)' : 'var(--glass-bg)'),
+                  border: `1px solid ${msg.role === 'user' ? 'rgba(59, 130, 246, 0.3)' : (msg.isDebug ? 'rgba(239, 68, 68, 0.4)' : 'var(--border-color)')}`,
                   padding: '1rem 1.25rem',
                   borderRadius: '12px',
                   borderTopLeftRadius: msg.role === 'ai' ? '0px' : '12px',
@@ -135,7 +183,8 @@ const Workspace = () => {
                   lineHeight: 1.5,
                   color: msg.role === 'user' ? '#fff' : 'var(--text-main)',
                   fontSize: '0.95rem',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                  whiteSpace: 'pre-wrap'
                 }}>
                   {msg.content}
                 </div>
@@ -166,7 +215,7 @@ const Workspace = () => {
                   }
                 }}
                 disabled={isGenerating}
-                placeholder="e.g. Build an automated greenhouse monitor..."
+                placeholder={isDebugMode ? "Describe your physical hardware error..." : "e.g. Build an automated greenhouse monitor..."}
                 className="input-field"
                 style={{ 
                   flex: 1, 
@@ -177,7 +226,8 @@ const Workspace = () => {
                   fontSize: '1rem',
                   borderRadius: '12px',
                   fontFamily: 'var(--font-sans)',
-                  lineHeight: '1.5'
+                  lineHeight: '1.5',
+                  border: isDebugMode ? '1px solid #ef4444' : '1px solid var(--border-color)'
                 }}
                 rows={2}
               />
@@ -185,7 +235,7 @@ const Workspace = () => {
                 type="submit" 
                 disabled={!prompt.trim() || isGenerating}
                 className="btn btn-primary"
-                style={{ padding: '0 1.5rem', background: prompt.trim() ? 'var(--primary)' : 'rgba(255,255,255,0.1)', color: prompt.trim() ? 'white' : 'gray', height: '60px', borderRadius: '12px' }}
+                style={{ padding: '0 1.5rem', background: prompt.trim() ? (isDebugMode ? '#ef4444' : 'var(--primary)') : 'rgba(255,255,255,0.1)', color: prompt.trim() ? 'white' : 'gray', height: '60px', borderRadius: '12px' }}
               >
                 <Send size={18} />
               </button>
