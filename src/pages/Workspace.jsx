@@ -135,14 +135,7 @@ const Workspace = () => {
             </div>
             <button 
               onClick={() => setIsDebugMode(!isDebugMode)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                padding: '0.5rem 0.75rem', borderRadius: '8px',
-                background: isDebugMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)',
-                color: isDebugMode ? '#ef4444' : 'var(--text-muted)',
-                border: `1px solid ${isDebugMode ? 'rgba(239, 68, 68, 0.5)' : 'transparent'}`,
-                cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.875rem', fontWeight: 600
-              }}
+              className={`btn-debug-toggle ${isDebugMode ? 'on' : 'off'}`}
             >
               <Bug size={16} /> {isDebugMode ? 'Debug Mode ON' : 'Debug Mode'}
             </button>
@@ -234,8 +227,8 @@ const Workspace = () => {
               <button 
                 type="submit" 
                 disabled={!prompt.trim() || isGenerating}
-                className="btn btn-primary"
-                style={{ padding: '0 1.5rem', background: prompt.trim() ? (isDebugMode ? '#ef4444' : 'var(--primary)') : 'rgba(255,255,255,0.1)', color: prompt.trim() ? 'white' : 'gray', height: '60px', borderRadius: '12px' }}
+                className={`btn ${isDebugMode ? 'btn-send-debug' : 'btn-send-normal'}`}
+                style={{ padding: '0 1.5rem', height: '60px', borderRadius: '12px', border: 'none' }}
               >
                 <Send size={18} />
               </button>

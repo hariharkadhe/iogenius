@@ -116,6 +116,59 @@ a {
   box-shadow: none;
 }
 
+/* Enhanced Button Styles */
+.btn-send-normal {
+  background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+  color: white;
+  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+}
+.btn-send-normal:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5);
+}
+
+.btn-send-debug {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+.btn-send-debug:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+}
+
+.btn-debug-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+  font-weight: 600;
+  outline: none;
+}
+.btn-debug-toggle.off {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.btn-debug-toggle.off:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.btn-debug-toggle.on {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ff8a8a;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+}
+.btn-debug-toggle.on:hover {
+  background: rgba(239, 68, 68, 0.25);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
 /* Custom Scrollbar for better UI */
 ::-webkit-scrollbar {
   width: 8px;
