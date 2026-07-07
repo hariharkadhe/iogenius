@@ -143,3 +143,63 @@ async def generate_project(req: PromptRequest):
             "status": "error",
             "message": f"An error occurred while generating the plan: {str(e)}"
         }
+
+# --- Debugging Endpoint ---
+
+class DebugRequest(BaseModel):
+    error_message: str
+    hardware: Hardware
+    software: Software
+
+class DebugResponse(BaseModel):
+    diagnosis: str = Field(description="A friendly, clear diagnosis of what might be wrong based on the physical error.")
+    solution_steps: List[str] = Field(description="Actionable, step-by-step instructions to fix the physical or code issue.")
+
+DEBUG_SYSTEM_PROMPT = """You are an Expert IoT Hardware Debugger.
+The user has built the circuit according to the provided hardware list and software code, but they are experiencing a physical error.
+Analyze their error message against the specific pins and logic in the code, and diagnose the issue.
+Always respond strictly in the requested JSON structure.
+"""
+
+@app.post("/api/debug")
+async def debug_project(req: DebugRequest):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key or not genai:
+        return {
+            "status": "success",
+            "diagnosis": "⚠️ GEMINI_API_KEY is not set. Cannot debug.",
+            "solution_steps": ["Add GEMINI_API_KEY to backend/.env"]
+        }
+
+    try:
+        client = genai.Client(api_key=api_key)
+        
+        # Construct the context for Gemini
+        context = f"HARDWARE: {req.hardware.model_dump_json()}\n\nSOFTWARE CODE: {req.software.code}\n\nUSER ERROR: {req.error_message}"
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=context,
+            config=types.GenerateContentConfig(
+                system_instruction=DEBUG_SYSTEM_PROMPT,
+                response_mime_type="application/json",
+                response_schema=DebugResponse,
+                temperature=0.2, # Lower temp for more analytical debugging
+            ),
+        )
+        
+        import json
+        debug_data = json.loads(response.text)
+        
+        return {
+            "status": "success",
+            "diagnosis": debug_data.get("diagnosis", "Could not diagnose."),
+            "solution_steps": debug_data.get("solution_steps", [])
+        }
+        
+    except Exception as e:
+        print(f"Error debugging: {e}")
+        return {
+            "status": "error",
+            "message": f"An error occurred during debugging: {str(e)}"
+        }
