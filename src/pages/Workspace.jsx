@@ -7,6 +7,7 @@ import {
   Code, Terminal, Cloud, ChevronDown, ChevronUp, Bug
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import WebFlasher from '../components/WebFlasher';
 
 const Workspace = () => {
   const navigate = useNavigate();
@@ -352,6 +353,9 @@ const Workspace = () => {
                              <code>{software.code}</code>
                            </pre>
                         </div>
+
+                        {/* 1-Click Browser Flashing */}
+                        <WebFlasher code={software.code} language={software.language} />
 
                         {/* Wiring Guide */}
                         {software.wiring_steps && software.wiring_steps.length > 0 && (
