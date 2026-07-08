@@ -203,3 +203,34 @@ async def debug_project(req: DebugRequest):
             "status": "error",
             "message": f"An error occurred during debugging: {str(e)}"
         }
+
+# --- Cloud Compiler Scaffold ---
+
+class CompileRequest(BaseModel):
+    code: str
+    language: str
+
+@app.post("/api/compile")
+async def compile_code(req: CompileRequest):
+    """
+    Mock endpoint for the Prototype Cloud Compiler.
+    In a real production environment, this would spin up a Docker container,
+    run `arduino-cli compile --fqbn esp32:esp32:esp32`, and return the .bin file.
+    """
+    import asyncio
+    
+    # Simulate a realistic compilation delay
+    await asyncio.sleep(2)
+    
+    if req.language.lower() == 'python':
+        return {
+            "status": "success",
+            "message": "MicroPython script verified.",
+            "binary_url": None # MicroPython is sent as raw text
+        }
+    else:
+        return {
+            "status": "success",
+            "message": "C++ code compiled successfully to ESP32 binary.",
+            "binary_url": "/mock_build/firmware.bin"
+        }
