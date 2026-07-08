@@ -115,16 +115,33 @@ async def generate_project(req: PromptRequest):
                 types.Content(role=role, parts=[types.Part.from_text(text=msg.content)])
             )
 
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT,
-                response_mime_type="application/json",
-                response_schema=ProjectPlan,
-                temperature=0.7,
-            ),
-        )
+        response = None
+        try:
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_PROMPT,
+                    response_mime_type="application/json",
+                    response_schema=ProjectPlan,
+                    temperature=0.7,
+                ),
+            )
+        except Exception as e:
+            if "503" in str(e) or "UNAVAILABLE" in str(e):
+                print("gemini-2.5-flash is unavailable, falling back to gemini-1.5-flash...")
+                response = client.models.generate_content(
+                    model='gemini-1.5-flash',
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_PROMPT,
+                        response_mime_type="application/json",
+                        response_schema=ProjectPlan,
+                        temperature=0.7,
+                    ),
+                )
+            else:
+                raise e
         
         # Parse the JSON response
         import json
