@@ -311,7 +311,7 @@ const Workspace = () => {
                           <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                             <h4 style={{ margin: '0 0 0.5rem 0', color: '#34d399' }}>{s.name}</h4>
                             <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{s.desc}</p>
-                            <div style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>{s.specs.join(' | ')}</div>
+                            <div style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>{s.connection_type}</div>
                           </div>
                         ))}
                       </div>
@@ -327,7 +327,7 @@ const Workspace = () => {
                           <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                             <h4 style={{ margin: '0 0 0.5rem 0', color: '#fbbf24' }}>{o.name}</h4>
                             <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{o.desc}</p>
-                            <div style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>{o.specs.join(' | ')}</div>
+                            <div style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>{o.connection_type}</div>
                           </div>
                         ))}
                       </div>
