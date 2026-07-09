@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import WebFlasher from '../components/WebFlasher';
+import ShoppingCart from '../components/ShoppingCart';
 
 const Workspace = () => {
   const navigate = useNavigate();
