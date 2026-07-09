@@ -35,19 +35,30 @@ class PromptRequest(BaseModel):
 
 # --- Pydantic Models for Structured Output (Gemini) ---
 class Microcontroller(BaseModel):
-    name: str = Field(description="Name of the microcontroller (e.g., ESP32, Raspberry Pi 4)")
-    desc: str = Field(description="Short description of the microcontroller")
-    specs: List[str] = Field(description="List of key specifications")
+    name: str = Field(description="Name of the microcontroller (e.g., ESP32, Raspberry Pi Pico)")
+    desc: str = Field(description="Brief explanation of why this was chosen")
+    specs: List[str] = Field(description="Key specifications")
+    estimated_price: float = Field(description="The estimated cost in USD (e.g., 5.50)")
+    purchase_link: str = Field(description="An Amazon search URL to buy this component (e.g., https://www.amazon.com/s?k=ESP32+NodeMCU)")
 
-class Component(BaseModel):
-    name: str = Field(description="Name of the sensor or output component")
-    desc: str = Field(description="Short description of the component")
-    specs: List[str] = Field(description="List of key specifications (e.g., Voltage, Protocol)")
+class Sensor(BaseModel):
+    name: str = Field(description="Name of the sensor")
+    desc: str = Field(description="What this sensor does")
+    connection_type: str = Field(description="e.g., I2C, SPI, Analog, Digital")
+    estimated_price: float = Field(description="The estimated cost in USD (e.g., 2.50)")
+    purchase_link: str = Field(description="An Amazon search URL to buy this component")
+
+class Output(BaseModel):
+    name: str = Field(description="Name of the output device")
+    desc: str = Field(description="What this output device does")
+    connection_type: str = Field(description="e.g., PWM, Digital, I2C")
+    estimated_price: float = Field(description="The estimated cost in USD (e.g., 3.00)")
+    purchase_link: str = Field(description="An Amazon search URL to buy this component")
 
 class Hardware(BaseModel):
     microcontroller: Microcontroller
-    sensors: List[Component]
-    outputs: List[Component]
+    sensors: List[Sensor]
+    outputs: List[Output]
 
 class InstructionStep(BaseModel):
     title: str = Field(description="Title of the step")
@@ -65,16 +76,13 @@ class ProjectPlan(BaseModel):
     hardware: Hardware
     software: Software
 
-SYSTEM_PROMPT = """You are an expert IoT Hardware Architect and Software Developer.
-The user is building an IoT project. They will provide a request or a follow-up modification.
-You must design the hardware system and write the software for it.
-- Choose an appropriate microcontroller (e.g., ESP32 for C++, Raspberry Pi for Python).
-- List the exact sensors and output components needed with real-world specs.
-- Write fully functional code (C++ or Python) for the system.
-- Provide a step-by-step wiring guide. The pins mentioned here MUST perfectly match the GPIO pins defined in the generated code.
-- Provide step-by-step IDE instructions (Arduino IDE for C++, Thonny for Python). MUST include the direct download link to the IDE.
-- Provide step-by-step Cloud integration instructions if applicable. MUST include the direct link to the cloud platform (e.g., thingspeak.com).
-Always respond strictly in the requested JSON structure.
+SYSTEM_PROMPT = """You are an Expert IoT Architect.
+You help users design and implement IoT hardware systems.
+Your job is to recommend the best microcontroller (like ESP32 or Raspberry Pi Pico), sensors, and output devices for the user's project.
+You must also provide a real-world estimated cost (in USD) for every component, and generate a valid Amazon search URL for that component (e.g. https://www.amazon.com/s?k=DHT11+Sensor).
+You will also write the complete C++ (Arduino) or MicroPython code required to run the system, including any necessary libraries.
+Provide a clear, step-by-step wiring guide matching the exact pins used in your code.
+Always respond strictly in the requested JSON structure. Do not include markdown formatting or explanation outside the JSON.
 """
 
 @app.post("/api/generate")
@@ -90,7 +98,9 @@ async def generate_project(req: PromptRequest):
                 "microcontroller": {
                     "name": "ESP32 NodeMCU (Wi-Fi/BT)",
                     "desc": "Fallback Mock Microcontroller",
-                    "specs": ["Operating Voltage: 3.3V Logic"]
+                    "specs": ["Operating Voltage: 3.3V Logic"],
+                    "estimated_price": 5.99,
+                    "purchase_link": "https://www.amazon.com/s?k=ESP32+NodeMCU"
                 },
                 "sensors": [],
                 "outputs": []
