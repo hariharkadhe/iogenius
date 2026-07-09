@@ -334,6 +334,9 @@ const Workspace = () => {
                     </div>
                   </div>
 
+                  {/* Automated Shopping Cart */}
+                  <ShoppingCart hardware={hardware} />
+
                   {/* SOFTWARE SECTION */}
                   <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px dashed var(--border-color)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     {!showCode ? (
