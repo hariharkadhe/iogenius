@@ -64,10 +64,18 @@ class InstructionStep(BaseModel):
     title: str = Field(description="Title of the step")
     desc: str = Field(description="Detailed instruction for the step")
 
+class WiringConnection(BaseModel):
+    from_component: str = Field(description="Name of the component (e.g. 'DHT11')")
+    from_pin: str = Field(description="Pin name on the component (e.g. 'VCC')")
+    to_component: str = Field(description="Name of the target component (usually the microcontroller)")
+    to_pin: str = Field(description="Pin name on the target (e.g. '3V3')")
+    color: str = Field(description="Wire color hex code (e.g. '#ef4444' for power, '#3b82f6' for data, '#22c55e' for ground)")
+
 class Software(BaseModel):
-    language: str = Field(description="Programming language (e.g., cpp, python)")
-    code: str = Field(description="The complete, functional source code for the project")
-    wiring_steps: List[InstructionStep] = Field(description="Step-by-step wiring instructions connecting the microcontroller to the sensors and outputs based on the generated code.")
+    language: str = Field(description="Either 'cpp' or 'python'")
+    code: str = Field(description="The full, functional source code")
+    wiring_steps: List[InstructionStep]
+    wiring_connections: List[WiringConnection] = Field(description="Structured data for drawing the visual breadboard")
     ide_steps: List[InstructionStep] = Field(description="Step-by-step instructions for running the code in an IDE (e.g., Arduino IDE or Thonny)")
     cloud_steps: List[InstructionStep] = Field(description="Step-by-step instructions for connecting to a cloud dashboard (e.g., Blynk, ThingSpeak)")
 
@@ -108,6 +116,10 @@ async def generate_project(req: PromptRequest):
             "software": {
                 "language": "cpp",
                 "code": "// Add GEMINI_API_KEY to backend/.env to generate real code!",
+                "wiring_steps": [{"title": "Power", "desc": "Connect VCC to 3V3"}],
+                "wiring_connections": [
+                    {"from_component": "Mock Sensor", "from_pin": "VCC", "to_component": "ESP32 NodeMCU (Wi-Fi/BT)", "to_pin": "3V3", "color": "#ef4444"}
+                ],
                 "ide_steps": [{"title": "Setup API Key", "desc": "Create a .env file in the backend folder and add GEMINI_API_KEY=your_key"}],
                 "cloud_steps": []
             }
@@ -139,9 +151,9 @@ async def generate_project(req: PromptRequest):
             )
         except Exception as e:
             if "503" in str(e) or "UNAVAILABLE" in str(e):
-                print("gemini-2.5-flash is unavailable, falling back to gemini-1.5-flash...")
+                print("gemini-2.5-flash is unavailable, falling back to gemini-2.0-flash...")
                 response = client.models.generate_content(
-                    model='gemini-1.5-flash',
+                    model='gemini-2.0-flash',
                     contents=contents,
                     config=types.GenerateContentConfig(
                         system_instruction=SYSTEM_PROMPT,
