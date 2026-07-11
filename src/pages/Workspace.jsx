@@ -9,6 +9,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import WebFlasher from '../components/WebFlasher';
 import ShoppingCart from '../components/ShoppingCart';
+import BreadboardViewer from '../components/BreadboardViewer';
 
 const Workspace = () => {
   const navigate = useNavigate();
@@ -361,7 +362,7 @@ const Workspace = () => {
                         {/* 1-Click Browser Flashing */}
                         <WebFlasher code={software.code} language={software.language} />
 
-                        {/* Wiring Guide */}
+                        {/* Wiring Guide (Text) */}
                         {software.wiring_steps && software.wiring_steps.length > 0 && (
                           <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid #8b5cf6' }}>
                              <h3 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Zap size={20} color="#8b5cf6" /> Wiring & Connections</h3>
@@ -378,6 +379,9 @@ const Workspace = () => {
                              </div>
                           </div>
                         )}
+
+                        {/* Visual Breadboard Diagrams */}
+                        <BreadboardViewer hardware={hardware} connections={software.wiring_connections} />
 
                         {/* IDE Steps */}
                         <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--primary)' }}>
