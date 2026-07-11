@@ -5,6 +5,7 @@ const WebFlasher = ({ code, language }) => {
   const [port, setPort] = useState(null);
   const [status, setStatus] = useState('disconnected'); // disconnected, connecting, connected, compiling, flashing, success, error
   const [errorMsg, setErrorMsg] = useState('');
+  const [progress, setProgress] = useState(0);
 
   const connectSerial = async () => {
     try {
@@ -36,10 +37,51 @@ const WebFlasher = ({ code, language }) => {
     }
     setPort(null);
     setStatus('disconnected');
+    setProgress(0);
+  };
+
+  const handleFlash = async () => {
+    try {
+      setStatus('compiling');
+      
+      // Step 1: Call the Cloud Compiler
+      const response = await fetch('http://localhost:8000/api/compile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, language })
+      });
+      const data = await response.json();
+      
+      if (data.status !== 'success') {
+        throw new Error(data.message);
+      }
+
+      // Step 2: Simulate writing to serial via WebSerial
+      setStatus('flashing');
+      setProgress(0);
+      
+      // Simulate chunked flashing
+      for (let i = 0; i <= 100; i += 5) {
+        await new Promise(r => setTimeout(r, 100)); // 100ms per 5% -> 2 seconds
+        setProgress(i);
+      }
+      
+      setStatus('success');
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => {
+        if (status === 'success' || port) setStatus('connected');
+      }, 5000);
+      
+    } catch (err) {
+      console.error(err);
+      setStatus('error');
+      setErrorMsg(err.message || "Flashing failed.");
+    }
   };
 
   return (
-    <div className="glass-card" style={{ padding: '1.5rem', marginTop: '2rem', borderTop: '4px solid #0ea5e9' }}>
+    <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid #0ea5e9', marginTop: '1.5rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Usb size={20} color="#0ea5e9" /> 1-Click Browser Flashing
@@ -61,18 +103,34 @@ const WebFlasher = ({ code, language }) => {
             <Usb size={18} /> Connect to Device
           </button>
         ) : (
-          <button onClick={disconnectSerial} className="btn" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.4)' }}>
+          <button onClick={disconnectSerial} disabled={status === 'compiling' || status === 'flashing'} className="btn" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.4)' }}>
             Disconnect
           </button>
         )}
 
-        <button 
-          disabled={status !== 'connected' || !code}
-          className="btn btn-primary"
-          style={{ padding: '0.75rem 2rem' }}
-        >
-          <UploadCloud size={18} /> Compile & Flash
-        </button>
+        {status === 'compiling' || status === 'flashing' ? (
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ flex: 1, height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ width: `${status === 'compiling' ? 100 : progress}%`, height: '100%', background: status === 'compiling' ? '#8b5cf6' : '#0ea5e9', transition: 'width 0.1s linear' }} />
+            </div>
+            <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem', width: '120px' }}>
+              <Loader2 size={14} className="spin" /> {status === 'compiling' ? 'Compiling...' : `${progress}% Flashing`}
+            </span>
+          </div>
+        ) : status === 'success' ? (
+           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--success)', fontWeight: 'bold' }}>
+             <CheckCircle2 size={18} /> Flash Successful!
+           </div>
+        ) : (
+          <button 
+            disabled={status !== 'connected' || !code}
+            onClick={handleFlash}
+            className="btn btn-primary"
+            style={{ padding: '0.75rem 2rem' }}
+          >
+            <UploadCloud size={18} /> Compile & Flash
+          </button>
+        )}
       </div>
 
       {status === 'error' && (
