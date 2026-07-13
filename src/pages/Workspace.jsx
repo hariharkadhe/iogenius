@@ -7,7 +7,7 @@ import {
   Code, Terminal, Cloud, ChevronDown, ChevronUp, Bug
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import WebFlasher from '../components/WebFlasher';
+
 import ShoppingCart from '../components/ShoppingCart';
 import BreadboardViewer from '../components/BreadboardViewer';
 
