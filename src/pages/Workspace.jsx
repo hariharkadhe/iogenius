@@ -15,6 +15,7 @@ const Workspace = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   
+  const [prompt, setPrompt] = useState('');
   const [chatHistory, setChatHistory] = useState(() => {
     const saved = sessionStorage.getItem('iogenius_chat');
     return saved ? JSON.parse(saved) : [{ role: 'ai', content: 'Welcome to the Architect Workspace. Describe the IoT hardware system you want to build, and I will generate a complete implementation plan.' }];
