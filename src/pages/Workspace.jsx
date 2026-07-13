@@ -346,7 +346,16 @@ const Workspace = () => {
                       </button>
                     ) : (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                        <h2 style={{ color: 'var(--accent)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Software & Deployment</h2>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                          <h2 style={{ color: 'var(--accent)', margin: 0 }}>Software & Deployment</h2>
+                          <button 
+                            onClick={() => navigate('/flasher', { state: { code: software.code, language: software.language } })}
+                            className="btn btn-primary" 
+                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#10b981', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+                          >
+                            <Terminal size={18} /> Flash to Device 🚀
+                          </button>
+                        </div>
                         
                         {/* Source Code */}
                         <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
@@ -359,8 +368,7 @@ const Workspace = () => {
                            </pre>
                         </div>
 
-                        {/* 1-Click Browser Flashing */}
-                        <WebFlasher code={software.code} language={software.language} />
+
 
                         {/* Wiring Guide (Text) */}
                         {software.wiring_steps && software.wiring_steps.length > 0 && (
