@@ -15,19 +15,44 @@ const Workspace = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   
-  const [prompt, setPrompt] = useState('');
-  const [chatHistory, setChatHistory] = useState([
-    { role: 'ai', content: 'Welcome to the Architect Workspace. Describe the IoT hardware system you want to build, and I will generate a complete implementation plan.' }
-  ]);
+  const [chatHistory, setChatHistory] = useState(() => {
+    const saved = sessionStorage.getItem('iogenius_chat');
+    return saved ? JSON.parse(saved) : [{ role: 'ai', content: 'Welcome to the Architect Workspace. Describe the IoT hardware system you want to build, and I will generate a complete implementation plan.' }];
+  });
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDebugMode, setIsDebugMode] = useState(false);
   
   // Data from Python Backend
-  const [hardware, setHardware] = useState(null);
-  const [software, setSoftware] = useState(null);
+  const [hardware, setHardware] = useState(() => {
+    const saved = sessionStorage.getItem('iogenius_hardware');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [software, setSoftware] = useState(() => {
+    const saved = sessionStorage.getItem('iogenius_software');
+    return saved ? JSON.parse(saved) : null;
+  });
   
-  const [showCode, setShowCode] = useState(false);
+  const [showCode, setShowCode] = useState(() => {
+    return sessionStorage.getItem('iogenius_showCode') === 'true';
+  });
+
+  // Persist State
+  useEffect(() => {
+    sessionStorage.setItem('iogenius_chat', JSON.stringify(chatHistory));
+  }, [chatHistory]);
+
+  useEffect(() => {
+    if (hardware) sessionStorage.setItem('iogenius_hardware', JSON.stringify(hardware));
+  }, [hardware]);
+
+  useEffect(() => {
+    if (software) sessionStorage.setItem('iogenius_software', JSON.stringify(software));
+  }, [software]);
+
+  useEffect(() => {
+    sessionStorage.setItem('iogenius_showCode', showCode);
+  }, [showCode]);
 
   const chatEndRef = useRef(null);
 
