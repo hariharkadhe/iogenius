@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Workspace from './pages/Workspace';
+import FlasherWorkspace from './pages/FlasherWorkspace';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -29,6 +30,16 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
+      
+      <Route 
+        path="/flasher" 
+        element={
+          <ProtectedRoute>
+            <FlasherWorkspace />
+          </ProtectedRoute>
+        } 
+      />
+
       {/* Fallback redirect */}
       <Route path="*" element={<Navigate to="/workspace" replace />} />
     </Routes>
