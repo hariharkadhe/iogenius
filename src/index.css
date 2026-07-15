@@ -1,5 +1,5 @@
 :root {
-  /* Light & Dark Fusion Palette */
+  /* Default Dark Mode */
   --bg-main: #0b1120;
   --bg-secondary: #0f172a;
   
@@ -7,16 +7,34 @@
   --accent: #8b5cf6;  /* Purple */
   --success: #10b981;
   --warning: #f59e0b;
+  --danger: #ef4444;
   
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --text-dark: #1e293b;
 
   --border-color: rgba(255, 255, 255, 0.1);
-  --glass-bg: rgba(255, 255, 255, 0.08); /* Lighter frosted glass */
-  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
   
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body.light-mode {
+  /* Light Mode Overrides */
+  --bg-main: #f8fafc;
+  --bg-secondary: #ffffff;
+  
+  --primary: #2563eb; 
+  --accent: #7c3aed;  
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-dark: #1e293b;
+
+  --border-color: rgba(0, 0, 0, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.1);
 }
 
 * {
