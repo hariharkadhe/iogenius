@@ -24,7 +24,7 @@ const BreadboardViewer = ({ hardware, connections }) => {
     <div className="glass-card" style={{ padding: '0', overflow: 'hidden', marginTop: '1.5rem', borderLeft: '4px solid #f43f5e' }}>
       <div style={{ padding: '1.5rem', background: 'rgba(244,63,94,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <Zap size={20} color="#fb7185" />
-        <h3 style={{ margin: 0, color: '#e2e8f0' }}>Interactive Breadboard UI</h3>
+        <h3 style={{ margin: 0, color: 'var(--text-main)' }}>Interactive Breadboard UI</h3>
       </div>
       
       <div 
@@ -33,7 +33,7 @@ const BreadboardViewer = ({ hardware, connections }) => {
           position: 'relative', 
           width: '100%', 
           height: `${Math.max(MCU_HEIGHT + 100, peripherals.length * 160 + 100)}px`, 
-          background: '#0f172a', 
+          background: 'var(--bg-main)', 
           backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)',
           backgroundSize: '20px 20px'
         }}
@@ -42,12 +42,12 @@ const BreadboardViewer = ({ hardware, connections }) => {
         {/* Central Microcontroller Node */}
         <div style={{ 
           position: 'absolute', top: `${MCU_Y}px`, left: `${MCU_X}px`, width: `${MCU_WIDTH}px`, height: `${MCU_HEIGHT}px`, 
-          background: '#1e293b', border: '2px solid #334155', borderRadius: '8px',
+          background: 'var(--bg-secondary)', border: '2px solid var(--border-color)', borderRadius: '8px',
           display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2,
           boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
         }}>
           <div style={{ marginTop: '1.5rem' }}><Cpu size={36} color="#60a5fa" /></div>
-          <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center', padding: '0 0.5rem', fontWeight: 600 }}>
+          <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0 0.5rem', fontWeight: 600 }}>
             {hardware.microcontroller.name}
           </div>
           
@@ -60,7 +60,7 @@ const BreadboardViewer = ({ hardware, connections }) => {
               
               return (
                 <div key={pin} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#cbd5e1', fontFamily: 'monospace', fontWeight: 'bold' }}>{pin}</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace', fontWeight: 'bold' }}>{pin}</span>
                   <div style={{ width: '8px', height: '12px', background: '#fbbf24', borderRadius: '4px 0 0 4px', marginRight: '-2px' }} />
                 </div>
               );
@@ -83,7 +83,7 @@ const BreadboardViewer = ({ hardware, connections }) => {
           return (
             <div key={pIdx} style={{ 
               position: 'absolute', top: `${DEVICE_Y}px`, left: `${DEVICE_X}px`, 
-              background: 'rgba(255,255,255,0.03)', border: '1px solid #334155', borderRadius: '8px',
+              background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', borderRadius: '8px',
               padding: '1rem', width: '220px', zIndex: 2, backdropFilter: 'blur(4px)',
               boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
             }}>
@@ -92,7 +92,7 @@ const BreadboardViewer = ({ hardware, connections }) => {
                   <Monitor size={18} color="#fbbf24" /> : 
                   <Activity size={18} color="#34d399" />
                 }
-                <div style={{ fontSize: '0.85rem', color: '#e2e8f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }}>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }}>
                   {device.name}
                 </div>
               </div>
@@ -108,7 +108,7 @@ const BreadboardViewer = ({ hardware, connections }) => {
                   return (
                     <div key={cIdx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <div style={{ width: '8px', height: '12px', background: '#fbbf24', borderRadius: '0 4px 4px 0', marginLeft: '-2px' }} />
-                      <span style={{ fontSize: '0.75rem', color: '#cbd5e1', fontFamily: 'monospace', fontWeight: 'bold' }}>{conn.from_pin}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace', fontWeight: 'bold' }}>{conn.from_pin}</span>
                     </div>
                   );
                 })}
