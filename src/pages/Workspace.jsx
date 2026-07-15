@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import ShoppingCart from '../components/ShoppingCart';
 import BreadboardViewer from '../components/BreadboardViewer';
+import ThemeToggle from '../components/ThemeToggle';
 
 const Workspace = () => {
   const navigate = useNavigate();
@@ -140,6 +141,7 @@ const Workspace = () => {
           <BrainCircuit color="var(--primary)" size={24} /> <span className="text-gradient">IOGENIUS Architect</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <ThemeToggle />
           <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <User size={16} /> {user?.name || 'Developer'}
           </span>

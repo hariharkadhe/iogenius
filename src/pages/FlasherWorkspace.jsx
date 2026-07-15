@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Terminal, ArrowLeft, Code } from 'lucide-react';
 import WebFlasher from '../components/WebFlasher';
+import ThemeToggle from '../components/ThemeToggle';
 
 const FlasherWorkspace = () => {
   const location = useLocation();
@@ -13,14 +14,17 @@ const FlasherWorkspace = () => {
       
       {/* Header */}
       <header style={{ padding: '1.5rem 2rem', display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--border-color)', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(12px)' }}>
-        <button 
-          onClick={() => navigate(-1)} 
-          className="btn" 
-          style={{ background: 'transparent', color: 'var(--text-muted)', padding: '0.5rem', marginRight: '1rem' }}
-        >
-          <ArrowLeft size={24} />
-        </button>
-        <h1 style={{ fontSize: '1.5rem', margin: 0, letterSpacing: '-0.5px' }}>Device Deployment Workspace</h1>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <button 
+            onClick={() => navigate(-1)} 
+            className="btn" 
+            style={{ background: 'transparent', color: 'var(--text-muted)', padding: '0.5rem', marginRight: '1rem', border: 'none', cursor: 'pointer' }}
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <h1 style={{ fontSize: '1.5rem', margin: 0, letterSpacing: '-0.5px' }}>Device Deployment Workspace</h1>
+        </div>
+        <ThemeToggle />
       </header>
 
       {/* Split Screen Layout */}
