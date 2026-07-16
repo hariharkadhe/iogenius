@@ -21,20 +21,20 @@
 }
 
 body.light-mode {
-  /* Light Mode Overrides */
-  --bg-main: #f8fafc;
+  /* New Crisp Light Mode - Indigo & Coral */
+  --bg-main: #f1f5f9;
   --bg-secondary: #ffffff;
   
-  --primary: #2563eb; 
-  --accent: #7c3aed;  
+  --primary: #4f46e5; /* Indigo */
+  --accent: #f43f5e;  /* Rose/Coral */
   
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --text-dark: #1e293b;
+  --text-main: #1e293b;
+  --text-muted: #475569;
+  --text-dark: #0f172a;
 
-  --border-color: rgba(0, 0, 0, 0.1);
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(0, 0, 0, 0.1);
+  --border-color: rgba(15, 23, 42, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(15, 23, 42, 0.1);
 }
 
 * {
