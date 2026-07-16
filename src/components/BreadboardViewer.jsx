@@ -46,7 +46,7 @@ const BreadboardViewer = ({ hardware, connections }) => {
           display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2,
           boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
         }}>
-          <div style={{ marginTop: '1.5rem' }}><Cpu size={36} color="#60a5fa" /></div>
+          <div style={{ marginTop: '1.5rem' }}><Cpu size={36} color="var(--primary)" /></div>
           <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0 0.5rem', fontWeight: 600 }}>
             {hardware.microcontroller.name}
           </div>
@@ -89,8 +89,8 @@ const BreadboardViewer = ({ hardware, connections }) => {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                 {device.connection_type && device.connection_type.toLowerCase().includes('output') ? 
-                  <Monitor size={18} color="#fbbf24" /> : 
-                  <Activity size={18} color="#34d399" />
+                  <Monitor size={18} color="var(--warning)" /> : 
+                  <Activity size={18} color="var(--success)" />
                 }
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }}>
                   {device.name}
