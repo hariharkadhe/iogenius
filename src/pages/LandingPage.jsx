@@ -13,7 +13,7 @@ const LandingPage = () => {
           <span className="text-gradient">IOGENIUS</span>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <Link to="/login" className="btn" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-main)', border: '1px solid var(--border-color)' }}>Sign In</Link>
+          <Link to="/login" className="btn" style={{ background: 'var(--glass-bg)', color: 'var(--text-main)', border: '1px solid var(--border-color)' }}>Sign In</Link>
           <Link to="/signup" className="btn btn-primary">Start Building</Link>
         </div>
       </nav>
@@ -51,7 +51,7 @@ const LandingPage = () => {
               <Link to="/signup" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.125rem' }}>
                 Build Your First Project <ArrowRight size={20} />
               </Link>
-              <Link to="/login" className="btn" style={{ padding: '1rem 2rem', fontSize: '1.125rem', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--border-color)' }}>
+              <Link to="/login" className="btn" style={{ padding: '1rem 2rem', fontSize: '1.125rem', background: 'var(--glass-bg)', color: 'var(--text-main)', border: '1px solid var(--border-color)' }}>
                 View Dashboard
               </Link>
             </div>
