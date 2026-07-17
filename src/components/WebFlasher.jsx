@@ -81,10 +81,10 @@ const WebFlasher = ({ code, language }) => {
   };
 
   return (
-    <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid #0ea5e9', marginTop: '1.5rem' }}>
+    <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--primary)', marginTop: '1.5rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Usb size={20} color="#0ea5e9" /> 1-Click Browser Flashing
+        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)' }}>
+          <Usb size={20} color="var(--primary)" /> 1-Click Browser Flashing
         </h3>
         {status === 'connected' && (
           <span style={{ fontSize: '0.8rem', color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
@@ -99,19 +99,19 @@ const WebFlasher = ({ code, language }) => {
 
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
         {status === 'disconnected' || status === 'error' ? (
-          <button onClick={connectSerial} className="btn" style={{ background: 'rgba(14, 165, 233, 0.15)', color: '#38bdf8', border: '1px solid rgba(14, 165, 233, 0.4)' }}>
+          <button onClick={connectSerial} className="btn" style={{ background: 'var(--glass-bg)', color: 'var(--primary)', border: '1px solid var(--primary)' }}>
             <Usb size={18} /> Connect to Device
           </button>
         ) : (
-          <button onClick={disconnectSerial} disabled={status === 'compiling' || status === 'flashing'} className="btn" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.4)' }}>
+          <button onClick={disconnectSerial} disabled={status === 'compiling' || status === 'flashing'} className="btn" style={{ background: 'var(--glass-bg)', color: '#ef4444', border: '1px solid #ef4444' }}>
             Disconnect
           </button>
         )}
 
         {status === 'compiling' || status === 'flashing' ? (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ flex: 1, height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ width: `${status === 'compiling' ? 100 : progress}%`, height: '100%', background: status === 'compiling' ? '#8b5cf6' : '#0ea5e9', transition: 'width 0.1s linear' }} />
+            <div style={{ flex: 1, height: '8px', background: 'var(--border-color)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ width: `${status === 'compiling' ? 100 : progress}%`, height: '100%', background: status === 'compiling' ? 'var(--accent)' : 'var(--primary)', transition: 'width 0.1s linear' }} />
             </div>
             <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem', width: '120px' }}>
               <Loader2 size={14} className="spin" /> {status === 'compiling' ? 'Compiling...' : `${progress}% Flashing`}
@@ -134,7 +134,7 @@ const WebFlasher = ({ code, language }) => {
       </div>
 
       {status === 'error' && (
-        <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(239, 68, 68, 0.1)', color: '#fca5a5', borderRadius: '8px', fontSize: '0.875rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: '8px', fontSize: '0.875rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <AlertCircle size={16} /> {errorMsg}
         </div>
       )}
