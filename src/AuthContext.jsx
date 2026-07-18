@@ -7,14 +7,42 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  const login = (email, password) => {
-    // Mock login
-    setUser({ email, name: email.split('@')[0] });
+  const login = async (email, password) => {
+    try {
+      const response = await fetch('http://localhost:8000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        setUser(data.user);
+        return { success: true };
+      } else {
+        return { success: false, message: data.message };
+      }
+    } catch (err) {
+      return { success: false, message: "Server connection failed" };
+    }
   };
 
-  const signup = (name, email, password) => {
-    // Mock signup
-    setUser({ email, name });
+  const signup = async (name, email, password) => {
+    try {
+      const response = await fetch('http://localhost:8000/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        setUser(data.user);
+        return { success: true };
+      } else {
+        return { success: false, message: data.message };
+      }
+    } catch (err) {
+      return { success: false, message: "Server connection failed" };
+    }
   };
 
   const logout = () => {

@@ -11,11 +11,15 @@ const Signup = () => {
   const { signup } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (name && email && password) {
-      signup(name, email, password);
-      navigate('/workspace');
+      const result = await signup(name, email, password);
+      if (result.success) {
+        navigate('/workspace');
+      } else {
+        alert(result.message);
+      }
     }
   };
 
