@@ -1,9 +1,13 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional
 from dotenv import load_dotenv
+from motor.motor_asyncio import AsyncIOMotorClient
+from passlib.context import CryptContext
+from bson import ObjectId
+import datetime
 
 try:
     from google import genai
@@ -15,6 +19,21 @@ except ImportError:
 load_dotenv()
 
 app = FastAPI()
+
+# --- Database Setup ---
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+client = AsyncIOMotorClient(MONGO_URI)
+db = client.iogenius
+users_collection = db.users
+projects_collection = db.projects
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
 
 # Allow CORS for React frontend
 app.add_middleware(
@@ -32,6 +51,16 @@ class ChatMessage(BaseModel):
 
 class PromptRequest(BaseModel):
     history: List[ChatMessage]
+
+# --- Auth Models ---
+class UserSignup(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
 # --- Pydantic Models for Structured Output (Gemini) ---
 class Microcontroller(BaseModel):
@@ -92,6 +121,45 @@ You will also write the complete C++ (Arduino) or MicroPython code required to r
 Provide a clear, step-by-step wiring guide matching the exact pins used in your code.
 Always respond strictly in the requested JSON structure. Do not include markdown formatting or explanation outside the JSON.
 """
+
+@app.post("/api/signup")
+async def signup(user: UserSignup):
+    existing_user = await users_collection.find_one({"email": user.email})
+    if existing_user:
+        return {"status": "error", "message": "Email already registered"}
+    
+    hashed_password = get_password_hash(user.password)
+    user_doc = {
+        "name": user.name,
+        "email": user.email,
+        "password": hashed_password,
+        "created_at": datetime.datetime.utcnow()
+    }
+    
+    result = await users_collection.insert_one(user_doc)
+    return {
+        "status": "success", 
+        "user": {
+            "id": str(result.inserted_id),
+            "name": user.name,
+            "email": user.email
+        }
+    }
+
+@app.post("/api/login")
+async def login(user: UserLogin):
+    db_user = await users_collection.find_one({"email": user.email})
+    if not db_user or not verify_password(user.password, db_user["password"]):
+        return {"status": "error", "message": "Invalid email or password"}
+    
+    return {
+        "status": "success",
+        "user": {
+            "id": str(db_user["_id"]),
+            "name": db_user["name"],
+            "email": db_user["email"]
+        }
+    }
 
 @app.post("/api/generate")
 async def generate_project(req: PromptRequest):
