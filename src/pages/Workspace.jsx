@@ -163,7 +163,10 @@ const Workspace = () => {
           <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <User size={16} /> {user?.name || 'Developer'}
           </span>
-          <button onClick={() => { logout(); navigate('/login'); }} className="btn" style={{ padding: '0.4rem 0.75rem', background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', border: '1px solid var(--border-color)', fontSize: '0.875rem' }}>
+          <button onClick={() => navigate('/dashboard')} className="btn" style={{ padding: '0.4rem 0.75rem', background: 'var(--glass-bg)', color: 'var(--primary)', border: '1px solid var(--border-color)', fontSize: '0.875rem' }}>
+            History
+          </button>
+          <button onClick={() => { logout(); navigate('/login'); }} className="btn" style={{ padding: '0.4rem 0.75rem', background: 'var(--glass-bg)', color: 'var(--text-muted)', border: '1px solid var(--border-color)', fontSize: '0.875rem' }}>
             <LogOut size={14} /> Logout
           </button>
         </div>
