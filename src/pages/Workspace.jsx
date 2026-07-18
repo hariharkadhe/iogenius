@@ -121,6 +121,24 @@ const Workspace = () => {
           setHardware(data.hardware);
           setSoftware(data.software);
           setChatHistory(prev => [...prev, { role: 'ai', content: data.message }]);
+          
+          // Auto-save project to DB if user is logged in
+          if (user && user.id) {
+            try {
+              await fetch('http://localhost:8000/api/projects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  user_id: user.id,
+                  prompt: currentPrompt,
+                  hardware: data.hardware,
+                  software: data.software
+                })
+              });
+            } catch (e) {
+              console.error("Failed to save project to DB", e);
+            }
+          }
         } else {
           setChatHistory(prev => [...prev, { role: 'ai', content: "An error occurred while generating the plan." }]);
         }

@@ -62,6 +62,12 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class ProjectSaveRequest(BaseModel):
+    user_id: str
+    prompt: str
+    hardware: dict
+    software: dict
+
 # --- Pydantic Models for Structured Output (Gemini) ---
 class Microcontroller(BaseModel):
     name: str = Field(description="Name of the microcontroller (e.g., ESP32, Raspberry Pi Pico)")
@@ -160,6 +166,27 @@ async def login(user: UserLogin):
             "email": db_user["email"]
         }
     }
+
+@app.post("/api/projects")
+async def save_project(req: ProjectSaveRequest):
+    project_doc = {
+        "user_id": req.user_id,
+        "prompt": req.prompt,
+        "hardware": req.hardware,
+        "software": req.software,
+        "created_at": datetime.datetime.utcnow()
+    }
+    result = await projects_collection.insert_one(project_doc)
+    return {"status": "success", "project_id": str(result.inserted_id)}
+
+@app.get("/api/projects/{user_id}")
+async def get_projects(user_id: str):
+    cursor = projects_collection.find({"user_id": user_id}).sort("created_at", -1)
+    projects = []
+    async for doc in cursor:
+        doc["_id"] = str(doc["_id"])
+        projects.append(doc)
+    return {"status": "success", "projects": projects}
 
 @app.post("/api/generate")
 async def generate_project(req: PromptRequest):
