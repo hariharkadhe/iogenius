@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -55,11 +55,11 @@ class PromptRequest(BaseModel):
 # --- Auth Models ---
 class UserSignup(BaseModel):
     name: str
-    email: EmailStr
+    email: str
     password: str
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 class ProjectSaveRequest(BaseModel):
