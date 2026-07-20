@@ -57,11 +57,30 @@ a {
   text-decoration: none;
 }
 
+/* Utility Classes */
 .text-gradient {
   background: linear-gradient(135deg, var(--primary), var(--accent));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.project-card-hover {
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+.project-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.15);
+  border-left-color: var(--accent) !important;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin-animation {
+  animation: spin 1.5s linear infinite;
 }
 
 /* Glassmorphism Classes (Light/Dark Fusion) */
