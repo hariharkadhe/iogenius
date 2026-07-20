@@ -368,3 +368,12 @@ async def compile_code(req: CompileRequest):
             "message": "C++ code compiled successfully to ESP32 binary.",
             "binary_url": "/mock_build/firmware.bin"
         }
+
+@app.get("/api/health")
+async def health_check():
+    try:
+        # Ping the database to verify connectivity
+        await db.command("ping")
+        return {"status": "success", "message": "API is running and MongoDB is connected!"}
+    except Exception as e:
+        return {"status": "error", "message": f"Database connection failed: {str(e)}"}
