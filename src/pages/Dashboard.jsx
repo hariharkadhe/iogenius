@@ -63,25 +63,31 @@ const Dashboard = () => {
         <h1 style={{ fontSize: '2rem', marginBottom: '2rem' }}>Welcome back, {user?.name}</h1>
         
         {loading ? (
-          <p style={{ color: 'var(--text-muted)' }}>Loading projects...</p>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
+             <p style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><BrainCircuit className="spin-animation" size={20} /> Loading your projects...</p>
+          </div>
         ) : projects.length === 0 ? (
-          <div className="glass-card" style={{ padding: '3rem', textAlign: 'center' }}>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.125rem', marginBottom: '1.5rem' }}>You haven't generated any projects yet.</p>
-            <Link to="/workspace" className="btn btn-primary" style={{ display: 'inline-flex', padding: '0.75rem 1.5rem' }}>
+          <div className="glass-card" style={{ padding: '4rem 2rem', textAlign: 'center', borderStyle: 'dashed', borderWidth: '2px', borderColor: 'var(--border-color)' }}>
+            <BrainCircuit size={48} color="var(--primary)" style={{ margin: '0 auto 1.5rem auto', opacity: 0.5 }} />
+            <h2 style={{ marginBottom: '1rem' }}>No Projects Yet</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1.125rem', maxWidth: '400px', margin: '0 auto 2rem auto' }}>Start building your first hardware prototype using our AI generator.</p>
+            <Link to="/workspace" className="btn btn-primary" style={{ display: 'inline-flex', padding: '0.75rem 1.5rem', fontWeight: 600 }}>
               Create New Project
             </Link>
           </div>
         ) : (
           <div style={{ display: 'grid', gap: '1.5rem' }}>
             {projects.map((project, idx) => (
-              <div key={project._id || idx} className="glass-card" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div key={project._id || idx} className="glass-card project-card-hover" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s ease', cursor: 'pointer', borderLeft: '4px solid var(--primary)' }}>
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.125rem' }}>"{project.prompt}"</h3>
-                  <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: 600 }}>"{project.prompt}"</h3>
+                  <div style={{ display: 'flex', gap: '1.5rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <Clock size={14} /> {new Date(project.created_at).toLocaleDateString()}
                     </span>
-                    <span>Microcontroller: {project.hardware?.microcontroller?.name || 'Unknown'}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <BrainCircuit size={14} /> {project.hardware?.microcontroller?.name || 'Unknown MCU'}
+                    </span>
                   </div>
                 </div>
                 <button onClick={() => loadProject(project)} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }}>
