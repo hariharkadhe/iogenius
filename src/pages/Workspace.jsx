@@ -218,18 +218,19 @@ const Workspace = () => {
                   {msg.role === 'ai' ? <><BrainCircuit size={14} color="var(--primary)" /> System</> : <><User size={14} /> You</>}
                 </div>
                 <div style={{ 
-                  background: msg.role === 'user' ? 'rgba(59, 130, 246, 0.1)' : (msg.isDebug ? 'rgba(239, 68, 68, 0.1)' : 'var(--glass-bg)'),
-                  border: `1px solid ${msg.role === 'user' ? 'rgba(59, 130, 246, 0.3)' : (msg.isDebug ? 'rgba(239, 68, 68, 0.4)' : 'var(--border-color)')}`,
+                  background: msg.role === 'user' ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.1))' : (msg.isDebug ? 'rgba(239, 68, 68, 0.1)' : 'var(--glass-bg)'),
+                  border: `1px solid ${msg.role === 'user' ? 'rgba(59, 130, 246, 0.4)' : (msg.isDebug ? 'rgba(239, 68, 68, 0.4)' : 'var(--border-color)')}`,
                   padding: '1rem 1.25rem',
-                  borderRadius: '12px',
-                  borderTopLeftRadius: msg.role === 'ai' ? '0px' : '12px',
-                  borderTopRightRadius: msg.role === 'user' ? '0px' : '12px',
+                  borderRadius: '16px',
+                  borderTopLeftRadius: msg.role === 'ai' ? '4px' : '16px',
+                  borderTopRightRadius: msg.role === 'user' ? '4px' : '16px',
                   maxWidth: '90%',
-                  lineHeight: 1.5,
+                  lineHeight: 1.6,
                   color: msg.role === 'user' ? '#fff' : 'var(--text-main)',
                   fontSize: '0.95rem',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-                  whiteSpace: 'pre-wrap'
+                  boxShadow: msg.role === 'user' ? '0 4px 20px rgba(59, 130, 246, 0.15)' : '0 4px 15px rgba(0,0,0,0.1)',
+                  whiteSpace: 'pre-wrap',
+                  backdropFilter: 'blur(10px)'
                 }}>
                   {msg.content}
                 </div>
@@ -261,18 +262,19 @@ const Workspace = () => {
                 }}
                 disabled={isGenerating}
                 placeholder={isDebugMode ? "Describe your physical hardware error..." : "e.g. Build an automated greenhouse monitor..."}
-                className="input-field"
+                className="input-field chat-input-glow"
                 style={{ 
                   flex: 1, 
                   background: 'rgba(15, 23, 42, 0.8)', 
                   resize: 'none', 
                   minHeight: '60px', 
                   padding: '1rem 1.25rem',
+                  borderRadius: '16px',
+                  border: isDebugMode ? '1px solid #ef4444' : '1px solid var(--border-color)',
+                  color: 'var(--text-main)',
                   fontSize: '1rem',
-                  borderRadius: '12px',
-                  fontFamily: 'var(--font-sans)',
-                  lineHeight: '1.5',
-                  border: isDebugMode ? '1px solid #ef4444' : '1px solid var(--border-color)'
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)',
+                  transition: 'all 0.3s ease'
                 }}
                 rows={2}
               />
@@ -280,9 +282,15 @@ const Workspace = () => {
                 type="submit" 
                 disabled={!prompt.trim() || isGenerating}
                 className={`btn ${isDebugMode ? 'btn-send-debug' : 'btn-send-normal'}`}
-                style={{ padding: '0 1.5rem', height: '60px', borderRadius: '12px', border: 'none' }}
+                style={{ 
+                  borderRadius: '16px', 
+                  padding: '0 1.5rem',
+                  boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
+                  transition: 'all 0.3s ease',
+                  border: 'none'
+                }}
               >
-                <Send size={18} />
+                <Send size={20} />
               </button>
             </form>
           </div>
