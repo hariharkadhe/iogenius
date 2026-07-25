@@ -8,6 +8,7 @@ import Signup from './pages/Signup';
 import Workspace from './pages/Workspace';
 import FlasherWorkspace from './pages/FlasherWorkspace';
 import Dashboard from './pages/Dashboard';
+import NotFound from './pages/NotFound';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -42,8 +43,8 @@ const AppRoutes = () => {
         } 
       />
 
-      {/* Fallback redirect */}
-      <Route path="*" element={<Navigate to="/workspace" replace />} />
+      {/* 404 Not Found */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
