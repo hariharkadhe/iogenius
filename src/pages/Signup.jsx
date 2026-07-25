@@ -8,18 +8,26 @@ const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (name && email && password) {
-      const result = await signup(name, email, password);
-      if (result.success) {
-        navigate('/workspace');
-      } else {
-        alert(result.message);
-      }
+    if (!name || !email || !password) return;
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    setError('');
+    setLoading(true);
+    const result = await signup(name, email, password);
+    setLoading(false);
+    if (result.success) {
+      navigate('/workspace');
+    } else {
+      setError(result.message || 'Signup failed. Please try again.');
     }
   };
 
@@ -85,9 +93,15 @@ const Signup = () => {
               />
             </div>
           </div>
-          
-          <button type="submit" className="btn btn-primary" style={{ marginTop: '0.5rem', width: '100%' }}>
-            Sign Up <ArrowRight size={18} />
+
+          {error && (
+            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171', padding: '0.75rem 1rem', borderRadius: '10px', fontSize: '0.875rem' }}>
+              {error}
+            </div>
+          )}
+
+          <button type="submit" disabled={loading} className="btn btn-primary" style={{ marginTop: '0.5rem', width: '100%', opacity: loading ? 0.7 : 1 }}>
+            {loading ? 'Creating account...' : <> Sign Up <ArrowRight size={18} /> </>}
           </button>
         </form>
 
